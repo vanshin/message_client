@@ -1,6 +1,6 @@
 #coding=utf8
 
-'''客户端'''
+''' client '''
 
 import os
 import click
@@ -15,7 +15,7 @@ class config:
     }
     server = {
         'host': '116.196.113.214',
-        'port': '8080',
+        'port': '5000',
     }
     endpoint = {
         'upload': 'message',
@@ -65,9 +65,17 @@ def upload(content, type):
     }
     ret = post(get_url('test', 'upload'), data=data)
     return ret.text
-
-def check():
-    ret = get(get_url('test', 'check'))
+@click.command()
+@click.option('--condi', type=click.STRING, help='环境', prompt='环境')
+def check(condi):
+    print(condi)
+    ret = ''
+    if condi == 'check':
+        ret = get(get_url('test', 'check'))
+    else:
+        ret = get(get_url('server', 'check'))
+        print('adf')
+    print(ret.text)
     return ret.text
 
 @click.command()
