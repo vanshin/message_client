@@ -1,6 +1,6 @@
 #coding=utf8
 
-'''客户端'''
+''' client '''
 
 import os
 import click
