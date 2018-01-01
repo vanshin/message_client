@@ -4,6 +4,9 @@
 
 import os
 import click
+import logging
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger()
 
 from requests import post, get
 
@@ -11,10 +14,19 @@ from config import ENV
 from runtime import redis
 
 def get_url(endpoint):
+    env = ENV['DEFAULT_ENV']
 
-    env = ENV.get(redis.get('env')) or ENV['DEFAULT_ENV']
+    if redis.get('env'):
+        log.info('redis_ret={}'.format(redis.get('env').decode()))
+        env = ENV[redis.get('env').decode()]
 
-    return env.URL_FORMAT.format(host=env.HOST, port=env.PORT, endpoint=endpoint)
+    log.info('env_ret={}'.format(env.HOST+':'+env.PORT))
+
+    return env.URL_FORMAT.format(
+        host=env.HOST,
+        port=env.PORT,
+        endpoint=env.ENDPOINT[endpoint]
+    )
 
 @click.command()
 @click.option('--content', type=click.STRING, help='填写消息内容', prompt='内容')
@@ -27,20 +39,46 @@ def upload(content, type):
     ret = post(get_url('upload'), data=data)
     return ret.text
 
+@click.command()
 def ping():
-    print(get_url('ping'))
     ret = get(get_url('ping'))
+    log.info('ret={}'.format(ret.text))
     return ret.text
 
 @click.command()
-@click.option('--select', type=click.STRING, help='check/upload', prompt='select')
-def main(select):
-    if select == 'ping':
-        print(ping())
-    elif select == 'upload':
-        print(upload())
-    else:
-        print('not exist')
+@click.option('--username', type=click.STRING, help='username?', prompt='username')
+@click.option('--password', type=click.STRING, help='password?', prompt='password')
+@click.option('--email', type=click.STRING, help='email?', prompt='email')
+@click.option('--mobile', type=click.STRING, help='mobile?', prompt='mobile')
+def regi(username, email, mobile, password):
+    data = {
+        'username': username,
+        'email': email,
+        'mobile': mobile,
+        'password': password
+    }
+    ret = post(get_url('user'), data=data)
+    log.info('ret={}'.format(ret.text))
+    return ret.text
+
+@click.command()
+@click.option('--env', type=click.STRING, help='select one server', prompt='env')
+@click.option('--expire', type=click.INT, help='redis expire time', prompt='expire')
+def server(env, expire):
+    redis.set('env', env)
+    redis.expire('env', expire)
+    log.info('ret={}'.format(redis.get('env')))
+    return redis.get('env')
+
+
+@click.group()
+def main():
+    pass
+
+main.add_command(ping)
+main.add_command(regi)
+main.add_command(server)
+main.add_command(upload)
 
 
 if __name__ == '__main__':

@@ -12,7 +12,8 @@ class config(object):
     # endpoint
     ENDPOINT = {
         'upload': 'message',
-        'ping': 'ping'
+        'ping': 'ping',
+        'user': 'user'
     }
 
 class debug_config(config):
@@ -24,9 +25,13 @@ class product_config(config):
     HOST = '116.196.113.214'
     PORT = '5000'
 
+class user_config(config):
+    PORT = '5002'
+
 ENV = {
     'TEST': debug_config,
     'PRODUCT': product_config,
+    'USER': user_config,
     'DEFAULT_ENV': debug_config
 }
 
