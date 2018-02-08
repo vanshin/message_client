@@ -13,7 +13,8 @@ class config(object):
     ENDPOINT = {
         'upload': 'message',
         'ping': 'ping',
-        'user': 'user'
+        'user': 'user',
+        'login': 'login',
     }
 
 class debug_config(config):

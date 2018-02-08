@@ -62,6 +62,19 @@ def regi(username, email, mobile, password):
     return ret.text
 
 @click.command()
+@click.option('--username', type=click.STRING, help='username?', prompt='username')
+@click.option('--password', type=click.STRING, help='password?', prompt='password')
+def login(username, password):
+    data = {
+        'username': username,
+        'password': password
+    }
+    ret = post(get_url('login'), data=data)
+    log.info('ret={}'.format(ret.text))
+    return ret.text
+
+
+@click.command()
 @click.option('--env', type=click.STRING, help='select one server', prompt='env')
 @click.option('--expire', type=click.INT, help='redis expire time', prompt='expire')
 def server(env, expire):
@@ -79,6 +92,7 @@ main.add_command(ping)
 main.add_command(regi)
 main.add_command(server)
 main.add_command(upload)
+main.add_command(login)
 
 
 if __name__ == '__main__':
