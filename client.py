@@ -1,3 +1,4 @@
+#!/home/vanshin/.pyenv/shims/python
 #coding=utf8
 
 ''' client '''
@@ -20,7 +21,8 @@ def get_url(endpoint):
         log.info('redis_ret={}'.format(redis.get('env').decode()))
         env = ENV[redis.get('env').decode()]
 
-    log.info('env_ret={}'.format(env.HOST+':'+env.PORT))
+    log.info('env_ret={}'.format(
+        env.HOST+':'+env.PORT+'/'+env.ENDPOINT.get(endpoint)))
 
     return env.URL_FORMAT.format(
         host=env.HOST,
