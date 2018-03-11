@@ -12,9 +12,11 @@ class config(object):
     # endpoint
     ENDPOINT = {
         'upload': 'message',
+        'gmes': 'message',
         'ping': 'ping',
         'user': 'user',
         'login': 'login',
+        'regi': 'regi',
     }
 
 class debug_config(config):

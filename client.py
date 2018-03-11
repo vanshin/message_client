@@ -5,6 +5,7 @@
 
 import os
 import click
+import json
 import logging
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger()
@@ -31,15 +32,35 @@ def get_url(endpoint):
     )
 
 @click.command()
-@click.option('--content', type=click.STRING, help='填写消息内容', prompt='内容')
-@click.option('--type', type=click.INT, help='消息类型(1-文字消息)', prompt='类型')
-def upload(content, type):
+@click.option('--content', '-c', type=click.STRING, help='填写消息内容', prompt='内容')
+@click.option('--type', '-t', type=click.INT, help='消息类型(1-文字消息)', prompt='类型')
+@click.option('--attr', '-a', type=(click.STRING, click.STRING), multiple=True)
+@click.option('--descr', '-d', type=click.STRING, help='描述', prompt='描述信息')
+def upload(content, type, descr, attr):
+    log.info('{},{},{},{}'.format(content, type, descr, attr))
     data = {
         'content': content,
         'type': type,
+        'descr': descr,
+        'attr': ''
     }
+    tmp = {}
+    for item in attr:
+        tmp[item[0]] = item[1]
+    log.info('attr={}'.format(tmp))
+    data['attr'] = json.dumps(tmp)
+    log.info(data)
     ret = post(get_url('upload'), data=data)
+    log.info(ret.text)
     return ret.text
+
+@click.command()
+def gmes():
+    data = {}
+    ret = get(get_url('gmes'), data=data)
+    log.info(ret.text)
+    return ret.text
+
 
 @click.command()
 def ping():
@@ -59,7 +80,7 @@ def regi(username, email, mobile, password):
         'mobile': mobile,
         'password': password
     }
-    ret = post(get_url('user'), data=data)
+    ret = post(get_url('regi'), data=data)
     log.info('ret={}'.format(ret.text))
     return ret.text
 
@@ -95,6 +116,7 @@ main.add_command(regi)
 main.add_command(server)
 main.add_command(upload)
 main.add_command(login)
+main.add_command(gmes)
 
 
 if __name__ == '__main__':
