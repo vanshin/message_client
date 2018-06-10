@@ -17,6 +17,7 @@ class config(object):
         'user': 'user',
         'login': 'login',
         'regi': 'regi',
+        'update': 'message'
     }
 
 class debug_config(config):

@@ -11,7 +11,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger()
 
-from requests import post, get
+from requests import post, get, put
 from prettytable import PrettyTable
 
 from config import ENV
@@ -67,7 +67,7 @@ def kformat(data, display=None, title=''):
 def lformat(data, head):
     x = PrettyTable()
     field_names = []
-    field_names = [i[1] for i in head]
+    field_names = [i[0] for i in head]
     field_names.insert(0 ,'index')
     x.field_names = field_names
     for i,v in enumerate(data):
@@ -120,6 +120,26 @@ def upload(content, type, descr, attr):
     return ret.text
 
 @click.command()
+@click.option('--content', '-c', type=click.STRING, help='填写消息内容', prompt='内容')
+@click.option('--attr', '-a', type=(click.STRING, click.STRING), multiple=True)
+@click.option('--descr', '-d', type=click.STRING, help='描述', prompt='描述信息')
+@click.option('--mid', '-m', type=click.STRING, help='描述', prompt='描述信息')
+def update(content, descr, attr, mid):
+    data = {
+        'content': content,
+        'descr': descr,
+        'attr': '',
+        'mid': mid,
+    }
+    tmp = {}
+    for item in attr:
+        tmp[item[0]] = item[1]
+    data['attr'] = json.dumps(tmp)
+    ret = put(get_url('update'), data=data, cookies={'session_id': redis.get('session').decode()})
+    kformat(data)
+    return ret.text
+
+@click.command()
 @click.option('--type', '-t', type=click.STRING, help='type tpye', prompt='type')
 @click.option('--attr', '-a', type=(click.STRING, click.STRING), multiple=True)
 def gmes(type, attr):
@@ -128,7 +148,7 @@ def gmes(type, attr):
     for item in attr:
         tmp[item[0]] = item[1]
     data['attr'] = json.dumps(tmp)
-    ret = get(get_url('gmes'), data=data)
+    ret = get(get_url('gmes'), data=data, cookies={'session_id': redis.get('session').decode()})
 
     result = {}
     result['code'] = ret.json()['code']
@@ -136,9 +156,12 @@ def gmes(type, attr):
     result.update(data)
     kformat(result, title='args and descr')
 
-    head_list = [('type', 'type'), ('content', 'content'), ('ctime', 'create_time')]
+    head_list = [('类型', 'type'), ('内容', 'content'),
+            ('创建时间', 'create_time'), ('ID', 'id'),
+            ('状态', 'status')]
     lformat(ret.json()['data']['messages'], head_list)
     return ret.text
+
 
 
 @click.command()
@@ -203,6 +226,7 @@ main.add_command(server)
 main.add_command(upload)
 main.add_command(login)
 main.add_command(gmes)
+main.add_command(update)
 
 
 if __name__ == '__main__':
