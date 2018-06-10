@@ -123,7 +123,7 @@ def upload(content, type, descr, attr):
 @click.option('--content', '-c', type=click.STRING, help='填写消息内容', prompt='内容')
 @click.option('--attr', '-a', type=(click.STRING, click.STRING), multiple=True)
 @click.option('--descr', '-d', type=click.STRING, help='描述', prompt='描述信息')
-@click.option('--mid', '-m', type=click.STRING, help='描述', prompt='描述信息')
+@click.option('--mid', '-m', type=click.STRING, help='描述', prompt='主键')
 def update(content, descr, attr, mid):
     data = {
         'content': content,
